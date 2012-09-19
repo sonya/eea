@@ -1,0 +1,49 @@
+io_code,env_code,desription
+15t16,sec15t16,"Agriculture, Hunting, Forestry and Fishing"
+17t18,sec17t18,Mining and Quarrying
+19,sec19,"Food, Beverages and Tobacco"
+20,sec20,Textiles and Textile Products
+21t22,sec21t22,"Leather, Leather and Footwear"
+23,sec23,Wood and Products of Wood and Cork
+24,sec24,"Pulp, Paper, Paper , Printing and Publishing"
+25,sec25,"Coke, Refined Petroleum and Nuclear Fuel"
+26,sec26,Chemicals and Chemical Products
+27t28,sec27t28,Rubber and Plastics
+29,sec29,Other Non-Metallic Mineral
+30t33,sec30t33,Basic Metals and Fabricated Metal
+34t35,sec34t35,"Machinery, Nec"
+36t37,sec36t37,Electrical and Optical Equipment
+50,sec50,Transport Equipment
+51,sec51,"Manufacturing, Nec; Recycling"
+52,sec52,"Electricity, Gas and Water Supply"
+60,sec60,Construction
+61,sec61,"Sale, Maintenance and Repair of Motor Vehicles and Motorcycles; Retail Sale of Fuel"
+62,sec62,"Wholesale Trade and Commission Trade, Except of Motor Vehicles and Motorcycles"
+63,sec63,"Retail Trade, Except of Motor Vehicles and Motorcycles; Repair of Household Goods"
+64,sec64,Hotels and Restaurants
+70,sec70,Inland Transport
+71t74,sec71t74,Water Transport
+AtB,secAtB,Air Transport
+C,secC,Other Supporting and Auxiliary Transport Activities; Activities of Travel Agencies
+E,secE,Post and Telecommunications
+F,secF,Financial Intermediation
+H,secH,Real Estate Activities
+J,secJ,Renting of M&Eq and Other Business Activities
+L,secL,Public Admin and Defence; Compulsory Social Security
+M,secM,Education
+N,secN,Health and Social Work
+O,secO,"Other Community, Social and Personal Services"
+P,secP,Private Households with Employed Persons
+,secQ,Extra-territorial organizations and bodies
+TXSP,,taxes less subsidies on products
+EXP_adj,,Cif/ fob adjustments on exports
+PURR,,Direct purchases abroad by residents
+PURNR,,Purchases on the domestic territory by non-residents
+VA,,Value added at basic prices
+MARG,,International Transport Margins
+CONS_h,FC_HH,Final consumption expenditure by households
+CONS_np,,Final consumption expenditure by non-profit organizations serving households (NPISH)
+CONS_g,,Final consumption expenditure by government
+GFCF,,Gross fixed capital formation
+INVEN,,Changes in inventories and valuables
+EXP,,Exports
