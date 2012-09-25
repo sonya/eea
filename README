@@ -5,9 +5,10 @@ for doing analysis on energy and environmental accounts using the Leontief
 framework.  It also contains code to construct a version of these accounts
 for the United States.
 
-Currently the code is completely undocumented and of extremely poor quality,
-since it was written mostly with the ultimate goal of generating LaTeX tables
-and GNUPlot code for inclusion in a dissertation.
+Warning: this is "research quality" code, which means it is completely
+undocumented and only works in very specific settings.  Also the only way
+to see results right now is through the LaTeX tables and GNUPlot code it
+generates.
 
 Nevertheless, if you find this repo and have any interest in the contents,
 please drop me a line.
