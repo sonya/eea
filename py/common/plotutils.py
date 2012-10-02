@@ -170,9 +170,12 @@ class GNUPlot:
         self.max_y_righthalf = max_y_righthalf
 
     def get_header(self):
-        specs = ["reset"]
-        specs.append("set terminal %s" % " ".join(self.get_terminal_args()))
-        specs.append("set output '%s'" % self.get_image_location())
+        specs = [
+            "reset",
+            "set terminal %s" % " ".join(self.get_terminal_args()),
+            "set output '%s'" % self.get_image_location(),
+            ]
+
         return "\n".join(specs)
 
     def get_footer(self):

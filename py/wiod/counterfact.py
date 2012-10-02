@@ -6,7 +6,7 @@ from common.plotutils import ScatterPlot
 from wiod.plotutils import WorldMapPlot, BubblePlot
 from usa.nipa import Deflators
 
-use_levels = True
+use_levels = False
 
 intense_sectors = [
     "secE", # utilities
@@ -19,6 +19,14 @@ intense_sectors = [
     "sec23", # fuels
     "sec24", # chemicals
     ]
+
+eu_xrange = (-25.5, 55.5)
+eu_yrange = (32, 70)
+
+def in_eu_rect(coords):
+    (x, y) = coords
+    return x >= eu_xrange[0] and x <= eu_xrange[1] \
+        and y >= eu_yrange[0] and y <= eu_yrange[1]
 
 def do_cfact(country, env_key):
     base_year = config.STUDY_YEARS[0]
@@ -103,15 +111,41 @@ def do_cfact(country, env_key):
         filename, title, compact=False,
         use_levels=use_levels)
 
+    # pce
     result = cfgen.decompose_result(
         pce_result, base_year, max(config.STUDY_YEARS)) # A, J, L, Y
-    for (key, value) in result:
-        worldmaps["pce-" + key].set_country_value(country, value)
 
+    value_pairs = [
+        ("Sector intensity", result["J"]),
+        ("Industry linkages", result["L"]),
+        ("Final demand", result["Y"]),
+        ]
+
+    worldmaps["pce"].set_country_value(country, result["A"])
+    worldmaps["pce-eu"].set_country_value(country, result["A"])
+
+    if in_eu_rect(WorldMapPlot.get_centroid(country)) and country != "TUR":
+        worldmaps["pce-eu"].add_tiny_barchart(country, value_pairs)
+    else:
+        worldmaps["pce"].add_tiny_barchart(country, value_pairs)
+
+    # exports
     result = cfgen.decompose_result(
         export_result, base_year, max(config.STUDY_YEARS)) # A, J, L, Y
-    for (key, value) in result:
-        worldmaps["export-" + key].set_country_value(country, value)
+
+    value_pairs = [
+        ("Sector intensity", result["J"]),
+        ("Industry linkages", result["L"]),
+        ("Final demand", result["Y"]),
+       ]
+
+    worldmaps["export"].set_country_value(country, result["A"])
+    worldmaps["export-eu"].set_country_value(country, result["A"])
+
+    if in_eu_rect(WorldMapPlot.get_centroid(country)) and country != "TUR":
+        worldmaps["export-eu"].add_tiny_barchart(country, value_pairs)
+    else:
+        worldmaps["export"].add_tiny_barchart(country, value_pairs)
 
 worldmaps = {}
 
@@ -121,10 +155,15 @@ else:
     group = "wiod-sda-intensity"
 
 for fdtype in ("export", "pce"):
-    worldmaps[fdtype + "-A"] = WorldMapPlot(fdtype + "-actual", "", group)
-    worldmaps[fdtype + "-J"] = WorldMapPlot(fdtype + "-intensity", "", group)
-    worldmaps[fdtype + "-L"] = WorldMapPlot(fdtype + "-structure", "", group)
-    worldmaps[fdtype + "-Y"] = WorldMapPlot(fdtype + "-fd", "", group)
+    world_plot = WorldMapPlot(fdtype, "", group)
+
+    worldmaps[fdtype] = world_plot
+
+    eu_plot = WorldMapPlot(fdtype + "-eu", "", group)
+    eu_plot.xrange = eu_xrange
+    eu_plot.yrange = eu_yrange
+
+    worldmaps[fdtype + "-eu"] = eu_plot
 
 bubblecharts = {}
 for sector in intense_sectors:
@@ -139,14 +178,21 @@ for country in config.country_rough_sort:
         do_cfact(country, key)
 
 for (measurement, plot) in worldmaps.items():
+    plot.width = 900 * 1.2
+    plot.height = 560 * 1.2
+    plot.add_custom_setup("set key font 'Arial,14'")
+    plot.add_custom_setup("set key width 4")
+
     plot.write_tables()
     plot.generate_plot()
 
 for (sector, plot) in bubblecharts.items():
     plot.add_custom_setup(
-        "set xlabel '%d intensity (kilotons per $MM chained 2005 USD)'" % min(config.STUDY_YEARS))
+        "set xlabel '%d intensity (kilotons per $MM chained 2005 USD)'"
+        % min(config.STUDY_YEARS))
     plot.add_custom_setup(
-        "set ylabel '%d intensity (kilotons per $MM chained 2005 USD)'" % max(config.STUDY_YEARS))
+        "set ylabel '%d intensity (kilotons per $MM chained 2005 USD)'"
+        % max(config.STUDY_YEARS))
     plot.add_custom_setup("set label 'y = x' at graph 0.9, 0.9 rotate by 35")
 
     plot.write_tables()

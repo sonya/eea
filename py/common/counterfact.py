@@ -288,9 +288,9 @@ class CounterfactGenerator:
     def decompose_result(self, fd_result, base_year, rel_year):
         base = fd_result[base_year]["A"]
         series = fd_result[rel_year]
-        shares = [
+        shares = dict(
             (index, (series[index] - base) / base)
-            for index in ["A", "J", "L", "Y"]]
+            for index in ["A", "J", "L", "Y"])
         return shares
 
     def counterfact(self, base_year, plot_group,
