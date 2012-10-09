@@ -82,6 +82,7 @@ def graph_table(filename, title, vector,
 
     plot.add_custom_setup("set style data linespoints")
     plot.add_custom_setup("unset colorbox")
+    plot.add_custom_setup("set grid")
 
     min_x = 5 * math.floor(min(config.STUDY_YEARS) / 5)
     max_x = 5 * math.ceil(max(config.STUDY_YEARS) / 5) + 5 # room for labels
@@ -105,6 +106,7 @@ def graph_table(filename, title, vector,
 
         base_value = data[group][base_year]
         for year in config.STUDY_YEARS:
+            print(group, year, data[group][year], base_value, data[group][year] / base_value)
             plot.set_value(group_name, year,
                            data[group][year] / base_value * 100)
 

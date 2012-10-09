@@ -180,8 +180,8 @@ for country in config.country_rough_sort:
 for (measurement, plot) in worldmaps.items():
     plot.width = 900 * 1.2
     plot.height = 560 * 1.2
-    plot.add_custom_setup("set key font 'Arial,14'")
-    plot.add_custom_setup("set key width 4")
+    plot.legend("font 'Arial,14'")
+    plot.legend("width 4")
 
     plot.write_tables()
     plot.generate_plot()
@@ -194,6 +194,7 @@ for (sector, plot) in bubblecharts.items():
         "set ylabel '%d intensity (kilotons per $MM chained 2005 USD)'"
         % max(config.STUDY_YEARS))
     plot.add_custom_setup("set label 'y = x' at graph 0.9, 0.9 rotate by 35")
+    plot.legend("title 'Change in levels (kilotons)'")
 
     plot.write_tables()
     plot.generate_plot()

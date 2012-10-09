@@ -2,6 +2,7 @@ import math
 
 from common.plotutils import GNUPlot
 from common import fileutils, utils
+from wiod import config
 
 # generate thematic map
 class WorldMapPlot(GNUPlot):
@@ -431,7 +432,13 @@ class BubblePlot(GNUPlot):
         GNUPlot.__init__(self, filename, title, group)
         self.series_values = ["x", "y", "size", "color", "style"]
         self.style = "points"
-        self.legend("off")
+        self.legend("left top")
+        self.legend("spacing 10 samplen 6 reverse")
+        self.legend("width -6")
+
+        # get largest circle for each style
+        self.sizes_by_style = {}
+        self.fake_legend = []
 
     def set_point(self, label, xvalue, yvalue, size, hexcolor, style=7):
         rgb = utils.rgb(hexcolor.strip("#"))
@@ -449,18 +456,54 @@ class BubblePlot(GNUPlot):
         self.set_value("color", label, color)
         self.set_value("style", label, style)
 
+        if style not in self.sizes_by_style or \
+                self.sizes_by_style[style] < size:
+            self.sizes_by_style[style] = size
+
     def get_axis_specs(self):
         specs = []
         return specs
 
+    # this should be in wiod.counterfact
+    def get_key_title(self, key):
+        country = config.countries[key]
+        size = self.data["size"][key]
+        style = self.data["style"][key]
+        if style not in (5, 7, 9, 11, 13, 15):
+            size = -size
+        return "%s: %s" % (country, utils.add_commas(size))
+
+    def hex_from_colorvar(self, colorvar):
+        r = int(colorvar / 65536)
+        rem = colorvar % 65536
+        g = int(rem / 256)
+        b = rem % 256
+        return "#" + utils.triplet((r, g, b))
+
     def write_tables(self):
+        # remember which circles we use to construct fake legend
+        styles_by_size = dict((k, v) for (v, k) in self.sizes_by_style.items())
+
         # normalize point sizes
         sizes = self.data["size"]
         max_size = max(sizes.values())
         min_size = min(sizes.values())
+        size_range = max_size - min_size
         for key in sizes.keys():
             size = sizes[key]
-            sizes[key] = math.sqrt((size - min_size) / (max_size - min_size)) * 10
+            normalized_size = math.sqrt((size - min_size) / size_range) * 10
+
+            # refer to actual value in legend
+            if size in styles_by_size:
+                title = self.get_key_title(key)
+                style = styles_by_size[size]
+                color = self.hex_from_colorvar(self.data["color"][key])
+                self.fake_legend.append(
+                    "pointsize %d pointtype %d lt rgb '%s' title '%s'"
+                    % (normalized_size, style, color, title))
+
+            sizes[key] = normalized_size
+
         self.data["size"] = sizes
         GNUPlot.write_tables(self)
 
@@ -473,12 +516,24 @@ class BubblePlot(GNUPlot):
         # http://stackoverflow.com/questions/6564561/gnuplot-conditional-plotting-plot-col-acol-b-if-col-c-x
 
         if len(styles) == 1:
-            plot_clauses.append("using 1:2:3:4 with points pointtype %d pointsize variable lt rgb variable" % style)
+            plot_clauses.append(
+                "using 1:2:3:4 with points " +
+                "pointtype %d pointsize variable lt rgb variable " % style +
+                "notitle")
         else:
-            plot_clauses.append("using 1:($5==%d?$2:1/0):3:4 with points pointtype %d pointsize variable lt rgb variable" % (styles[0], styles[0]))
+            plot_clauses.append(
+                "using 1:($5==%d?$2:1/0):3:4 with points " % styles[0] + 
+                "pointtype %d pointsize variable lt rgb variable " % styles[0] +
+                "notitle")
             for style in styles[1:]:
-                plot_clauses.append("'' using 1:($5==%d?$2:1/0):3:4 with points pointtype %d pointsize variable lt rgb variable" % (style, style))
-        plot_clauses.append("'' using 1:2:6 with labels font 'Arial,7'")
-        plot_clauses.append("x lt rgb '#CCCCCC'")
+                plot_clauses.append(
+                    "'' using 1:($5==%d?$2:1/0):3:4 with points " % style +
+                    "pointtype %d pointsize variable lt rgb variable " % style +
+                    "notitle")
+        plot_clauses.append("'' using 1:2:6 with labels font 'Arial,7' notitle")
+        plot_clauses.append("x lt rgb '#CCCCCC' notitle")
+
+        for line in self.fake_legend:
+            plot_clauses.append("NaN with points %s" % line)
 
         return plot_clauses
